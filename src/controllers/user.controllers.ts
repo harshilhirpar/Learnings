@@ -6,11 +6,16 @@ import dotenv from 'dotenv'
 import dates from "../utils/dates"
 import Plans from "../model/plans.model"
 import { DateTime } from "luxon"
+import { Model } from "sequelize"
 dotenv.config()
+
+// Import Types
+import { UserModel } from "../types/types"
+import { PlanModel } from "../types/types"
 
 const createUserController = async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body
-    const isUserExist = await User.findOne({ where: { email } })
+    const isUserExist: Model<UserModel> | null = await User.findOne({ where: { email } })
     if (isUserExist) {
         res.status(400).send({
             message: 'User Already Exist'
@@ -18,7 +23,7 @@ const createUserController = async (req: Request, res: Response, next: NextFunct
     }
     if (!isUserExist) {
         const hashedPassword: string = password_encrypter.encryptPassword(password)
-        const newUser = await User.create({
+        const newUser: Model<UserModel> = await User.create({
             name,
             email,
             password: hashedPassword
@@ -32,14 +37,15 @@ const createUserController = async (req: Request, res: Response, next: NextFunct
 
 const loginUserController = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body
-    const findUser: any = await User.findOne({ where: { email } })
+    // Type Assertion Here I am telling the typescript that trust me that the password property exist in the user you will find.
+    const findUser = await User.findOne({ where: { email } }) as UserModel & { password: string } | null
     if (findUser) {
         //Check Password
-        const passwordToCheckWith = findUser.password
+        const passwordToCheckWith: string = findUser.password
         const isPasswordMatch: boolean = password_encrypter.comparePassword(password, passwordToCheckWith)
         if (isPasswordMatch) {
             //Do Login
-            const token = jwt.sign({ id: findUser.id }, process.env.JWT || 'Harshil')
+            const token: string = jwt.sign({ id: findUser.id }, process.env.JWT || 'Harshil')
             res.status(200).send({
                 message: 'Login Successful',
                 token
@@ -69,22 +75,22 @@ const subscribeUserToPlan = async (req: Request, res: Response, next: NextFuncti
     // We need Plan details
     // Store current data as a plan start date
     // Calculate the end date and add it as a end data in user table.
-    const user: any = req.user
+    const user = req.user as Express.User & { id: string }
     const { planName } = req.body
-    const plan: any = await Plans.findOne({
-        where: { name: planName}
-    })
-    if(!plan){
+    const plan = await Plans.findOne({
+        where: { name: planName }
+    }) as PlanModel & { duration_months: string, id: string } | null
+    if (!plan) {
         res.status(404).send({
             message: "Something went wrong"
         })
     }
-    if(plan){
-        const {duration_months} = plan
+    if (plan) {
+        const { duration_months } = plan
         const planStartDate: DateTime = dates.getCurrentTime()
-        const planEndDate = dates.calculatePlanEndDate(duration_months)
-        const planId = plan.id
-        const updatedUser = await User.update({
+        const planEndDate: DateTime = dates.calculatePlanEndDate(duration_months)
+        const planId: string = plan.id
+        const updatedUser: [affectedCount: number] = await User.update({
             planId,
             plan_start_date: planStartDate,
             plan_end_date: planEndDate
