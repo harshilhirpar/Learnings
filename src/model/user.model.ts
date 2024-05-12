@@ -20,6 +20,18 @@ const User = DB.sequelize.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    planId: {
+        type: DataTypes.UUID,
+        allowNull: true
+    },
+    plan_start_date:{
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    plan_end_date:{
+        type: DataTypes.DATE,
+        allowNull: true
     }
 })
 
