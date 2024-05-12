@@ -8,6 +8,7 @@ const app = express()
 app.use(express.json())
 app.use(userRoute)
 
+// Listing on PORT 3000
 app.listen(3000, async () => {
     await DB.connectDB();
     await createTables();
