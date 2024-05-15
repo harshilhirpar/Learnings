@@ -15,3 +15,11 @@ export interface PlanModel {
     prive: number,
     duration_months: number
 }
+
+export interface TweetModel {
+    id: string,
+    content: string,
+    likes: number,
+    no_of_comments: number,
+    UserId: string | null
+}
