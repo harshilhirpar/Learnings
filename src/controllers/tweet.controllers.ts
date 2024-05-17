@@ -4,6 +4,7 @@ import Likes from "../model/likes.model"
 import { TweetModel } from "../types/types"
 import Op from "sequelize"
 import { Model } from "sequelize"
+import { Mode } from "fs"
 
 const addTweetController = async (req: Request, res: Response, next: NextFunction) => {
     // Getting the request object
@@ -14,6 +15,8 @@ const addTweetController = async (req: Request, res: Response, next: NextFunctio
         content,
         likes: 0,
         no_of_comments: 0,
+        is_reply: false,
+        parentId: null,
         UserId: user.id
     })
     res.status(201).send({
@@ -39,13 +42,13 @@ const getAllUserTweet = async (req: Request, res: Response, next: NextFunction) 
                         TweetId: tweet.id
                     }
                 })
-                if(getTweet){
+                if (getTweet) {
                     return {
                         ...tweet.dataValues,
                         isLikedByUser: true
                     }
                 }
-                if(!getTweet){
+                if (!getTweet) {
                     return {
                         ...tweet.dataValues,
                         isLikedByUser: false
@@ -107,4 +110,59 @@ const countTweet = async () => {
 
 }
 
-export default { addTweetController, getAllUserTweet, likeTweet }
+const findTweetById = async (req: Request, res: Response, next: NextFunction) => {
+    // Need Tweet Id
+    const tweetId = req.params.id;
+    const getTweet = await Tweets.findByPk(tweetId);
+    const getAllReplys = await Tweets.findAll({
+        where: {
+            parentId: tweetId
+        }
+    })
+    res.status(200).send({
+        message: "Found",
+        data: {
+            tweet: getTweet,
+            replies: getAllReplys
+        }
+    })
+}
+
+const replyOnTweet = async (req: Request, res: Response, next: NextFunction) => {
+    // Need Tweet id
+    const tweetId: string = req.params.id;
+    const { content } = req.body;
+    const user = req.user as Express.User & { id: string };
+    // Find the tweet
+    const tweet = await Tweets.findByPk(tweetId) as Model<TweetModel> & { no_of_comments: number } | null;
+    if (tweet) {
+        const newTweet: Model<TweetModel> = await Tweets.create({
+            content,
+            likes: 0,
+            no_of_comments: 0,
+            is_reply: true,
+            parentId: tweetId,
+            UserId: user.id
+        })
+        const updateNoOfComments: [affectedCount: number] = await Tweets.update({
+            no_of_comments: tweet.no_of_comments + 1
+        }, {
+            where: {
+                id: tweetId
+            }
+        })
+        res.status(201).send({
+            message: "Reply Added",
+            data: newTweet
+        })
+    }
+    if (!tweet) {
+        res.status(404).send({
+            message: "Tweet Not Found"
+        });
+    }
+}
+
+export default {
+    addTweetController, getAllUserTweet, likeTweet, replyOnTweet, findTweetById
+}

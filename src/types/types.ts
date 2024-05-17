@@ -21,5 +21,7 @@ export interface TweetModel {
     content: string,
     likes: number,
     no_of_comments: number,
+    is_reply: boolean,
+    parentId: string | null,
     UserId: string | null
 }

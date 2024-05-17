@@ -21,11 +21,8 @@ if (!isWorking) {
     app.listen(3000, async () => {
         await DB.connectDB();
         console.log("DB CONNECTED")
-        // await db_init.createTables();
         db.sequelize.sync({ force: false, logging: false })
         console.log("TABLES CREATED")
-        // db_init.defineRelations();
-        console.log("RELATION ADDED")
         console.log('Server is on')
     })
 }

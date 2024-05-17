@@ -19,6 +19,15 @@ const Tweets = DB.sequelize.define("Tweets", {
     no_of_comments: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    is_reply: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    parentId: {
+        type: DataTypes.UUID,
+        allowNull: true
     }
 })
 
