@@ -2,9 +2,7 @@ import { Request, Response, NextFunction } from "express"
 import Tweets from "../model/tweet_model"
 import Likes from "../model/likes.model"
 import { TweetModel } from "../types/types"
-import Op from "sequelize"
 import { Model } from "sequelize"
-import { Mode } from "fs"
 
 const addTweetController = async (req: Request, res: Response, next: NextFunction) => {
     // Getting the request object
@@ -112,9 +110,9 @@ const countTweet = async () => {
 
 const findTweetById = async (req: Request, res: Response, next: NextFunction) => {
     // Need Tweet Id
-    const tweetId = req.params.id;
-    const getTweet = await Tweets.findByPk(tweetId);
-    const getAllReplys = await Tweets.findAll({
+    const tweetId: string = req.params.id;
+    const getTweet: Model<TweetModel> | null = await Tweets.findByPk(tweetId);
+    const getAllReplys: Model<TweetModel>[] = await Tweets.findAll({
         where: {
             parentId: tweetId
         }

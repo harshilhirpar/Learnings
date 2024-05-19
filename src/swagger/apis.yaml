@@ -1,0 +1,54 @@
+# src/swagger.yaml
+openapi: 3.0.0
+info:
+  title: Twitter Like API
+  version: 1.0.0
+  description: A simple API documentation with Swagger and TypeScript
+paths:
+  /api/v1/register:
+    post:
+      summary: Registers the User
+      requestBody:
+        description: Get name, email, password
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: john
+                email:
+                  type: string
+                  example: abc@gmail.com
+                password:
+                  type: string
+                  example: 12345678
+      responses:
+        200:
+          description: Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User Created
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: uuid
+                      name:
+                        type: string
+                        example: john
+                      email:
+                        type: string
+                        example: abc@gmail.com
+                      password:
+                        type: string
+                        example: hashedPassword
+  
