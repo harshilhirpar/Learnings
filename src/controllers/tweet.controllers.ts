@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express"
 import Tweets from "../model/tweet_model"
 import Likes from "../model/likes.model"
-import { TweetModel } from "../types/types"
-import { Model } from "sequelize"
+import { LikeModel, TweetModel } from "../types/types"
+import { Model, Op } from "sequelize"
+import { Mode } from "fs"
 
 const addTweetController = async (req: Request, res: Response, next: NextFunction) => {
     // Getting the request object
@@ -12,9 +13,9 @@ const addTweetController = async (req: Request, res: Response, next: NextFunctio
     const newTweet: Model<TweetModel> = await Tweets.create({
         content,
         likes: 0,
-        no_of_comments: 0,
-        is_reply: false,
-        parentId: null,
+        noOfComments: 0,
+        isReply: false,
+        TweetId: null,
         UserId: user.id
     })
     res.status(201).send({
@@ -161,6 +162,53 @@ const replyOnTweet = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
+const dislikeTweet = async (req: Request, res: Response, next: NextFunction) => {
+    // Get the user
+    const user = req.user as Express.User & { id: string}
+    // Get the tweet id
+    const {tweetId} = req.body
+    // Find the tweet
+    const tweet = await Tweets.findByPk(tweetId) as Model<TweetModel> & { likes: number }
+    if(!tweet){
+        res.status(404).send({
+            message: "Something Went Wrong"
+        })
+    }
+    if(tweet){
+        const isLiked: Model<LikeModel> | null = await Likes.findOne({
+            where: {
+                [Op.and]: [{UserId: user.id}, {TweetId: tweetId}]
+            }
+        })
+        if(!isLiked){
+            res.status(404).send({
+                message: "You have already disliked"
+            })
+        }
+        if(isLiked){
+
+        
+        const likeCount: number = tweet.likes
+        const updatedLikeCount: number = likeCount - 1
+        const updateTweet: [affectedCount: number] = await Tweets.update({
+            likes: updatedLikeCount
+        }, {
+            where: {
+                id: tweetId
+            }
+        })
+        const deleteDetailFromLike: number = await Likes.destroy({
+            where: {
+                [Op.and]: [{UserId: user.id}, {TweetId: tweetId}]
+            }
+        })
+        res.status(200).send({
+            message: "Disliked"
+        })
+    }
+    }
+}
+
 export default {
-    addTweetController, getAllUserTweet, likeTweet, replyOnTweet, findTweetById
+    addTweetController, getAllUserTweet, likeTweet, replyOnTweet, findTweetById, dislikeTweet
 }

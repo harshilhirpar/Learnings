@@ -24,7 +24,7 @@ const User = DB.sequelize.define('User', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
     bio: {
         type: DataTypes.TEXT,

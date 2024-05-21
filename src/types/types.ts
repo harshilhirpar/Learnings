@@ -1,11 +1,14 @@
 export interface UserModel {
     id: string,
-    name: string,
+    userName: string,
     email: string,
     password: string,
-    planId: string | null,
-    plan_start_date: Date | null,
-    plan_end_date: Date | null
+    name: string,
+    bio: string | null,
+    location: string,
+    website: string | null,
+    profileImage: string | null,
+    meta: object | null
 }
 
 export interface PlanModel {
@@ -20,8 +23,14 @@ export interface TweetModel {
     id: string,
     content: string,
     likes: number,
-    no_of_comments: number,
-    is_reply: boolean,
-    parentId: string | null,
+    noOfComments: number,
+    isReply: boolean,
+    TweetId: string | null,
     UserId: string | null
+}
+
+export interface LikeModel {
+    id: string,
+    UserId: string,
+    TweetId: string
 }

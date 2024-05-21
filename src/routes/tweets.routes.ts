@@ -19,5 +19,8 @@ tweetsRoutes.post('/api/v1/tweet/:id/reply', passport.authenticate('jwt', {
 tweetsRoutes.get('/api/v1/tweet/:id', passport.authenticate('jwt', {
     session: false
 }), tweetControllers.findTweetById)
+tweetsRoutes.post('/api/v1/tweet/dislike', passport.authenticate('jwt', {
+    session: false
+}), tweetControllers.dislikeTweet)
 
 export default tweetsRoutes

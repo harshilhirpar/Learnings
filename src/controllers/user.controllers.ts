@@ -14,7 +14,7 @@ import { UserModel } from "../types/types"
 import { PlanModel } from "../types/types"
 
 const createUserController = async (req: Request, res: Response, next: NextFunction) => {
-    const { name, email, password } = req.body
+    const { userName, email, password, name, bio, location, website } = req.body
     const isUserExist: Model<UserModel> | null = await User.findOne({ where: { email } })
     if (isUserExist) {
         res.status(400).send({
@@ -24,9 +24,13 @@ const createUserController = async (req: Request, res: Response, next: NextFunct
     if (!isUserExist) {
         const hashedPassword: string = password_encrypter.encryptPassword(password)
         const newUser: Model<UserModel> = await User.create({
-            name,
+            userName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            name,
+            bio,
+            location,
+            website
         })
         res.status(201).send({
             message: 'User Created',
@@ -106,4 +110,34 @@ const subscribeUserToPlan = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export default { createUserController, removeUserController, loginUserController, subscribeUserToPlan }
+const addProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
+    // User must be logged in
+    // get user details
+    // Add the image into users table
+    const user = req.user as Express.User & { id: string }
+    const file: Express.Multer.File | undefined = req.file
+    if(!file){
+        res.status(404).send({
+            message: "Please Upload the File"
+        })
+    }
+    if(file){
+        const filename: string = file.filename
+        const findUser: Model<UserModel> | null = await User.findByPk(user.id)
+        const fileString: string | undefined = process.env.FILE_STRING
+        const filePath: string = fileString + `/${filename}`
+        const updateUser: [affectedCount: number] = await User.update({
+            profileImage: filePath
+        }, {
+            where: {
+                id: user.id
+            }
+        })
+        res.status(201).send({
+            message: "Profile Image Added"
+        })
+    }
+
+}
+
+export default { createUserController, removeUserController, loginUserController, subscribeUserToPlan, addProfilePicture }
