@@ -25,4 +25,7 @@ db.likes.belongsTo(db.users)
 // Likes belongs to tweets
 db.likes.belongsTo(db.tweets)
 
+db.tweets.hasMany(db.tweets)
+db.tweets.belongsTo(db.tweets)
+
 export default db;

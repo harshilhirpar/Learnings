@@ -8,8 +8,9 @@ const User = DB.sequelize.define('User', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    name:{
+    userName:{
         type: DataTypes.STRING,
+        unique: true,
         allowNull: false
     },
     email: {
@@ -20,6 +21,30 @@ const User = DB.sequelize.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    bio: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    location: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    website: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    profileImage: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    meta: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 })
 
